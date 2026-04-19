@@ -707,7 +707,7 @@ export default function JawaModern({ data }: TemplateProps) {
 
               {/* LAYER 2: Torn batik paper frame overlay (z-20) */}
               <img
-                src="/jawa_modern/Background-RSVT.png"
+                src="/jawa_modern/background-rsvt.png"
                 alt=""
                 className="relative w-full h-full pointer-events-none z-20 mt-[35%]"
               />
@@ -1160,3 +1160,4 @@ export default function JawaModern({ data }: TemplateProps) {
     </>
   );
 }
+

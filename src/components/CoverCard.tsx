@@ -35,7 +35,7 @@ export default function CoverCard({ isOpen, onOpen, groomName, brideName, coverI
                     <div
                         className="absolute inset-0 z-10 pointer-events-none"
                         style={{
-                            backgroundImage: "url('/jawa_modern/awal.png')",
+                            backgroundImage: "url('/jawa_modern/Awal.png')",
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                         }}
