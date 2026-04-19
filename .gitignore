@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+ scratch_db.ts
+ test-ssl.js
+ test-dns.js
+ generate_hash.js
+ hash.txt
+ update_env.js

@@ -1,0 +1,153 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Invitation {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String?
+  groomName   String
+  brideName   String
+  coverImage  String?
+  coverVideo  String?
+  theme       String   @default("jawa-modern")
+  heroImage   String?
+  rsvtImage   String?
+
+  groomPhotoUrl   String?
+  bridePhotoUrl   String?
+  groomBio        String?
+  brideBio        String?
+  groomParents    String?
+  brideParents    String?
+  groomHandle     String?
+  brideHandle     String?
+  groomLocation   String?
+  brideLocation   String?
+
+  // Opening section
+  openingQuote       String?  @db.Text
+  openingQuoteAuthor String?
+  musicUrl           String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events      Event[]
+  rsvps       Rsvp[]
+  guestbooks  Guestbook[]
+  socialLinks SocialLink[]
+  mediaItems  MediaItem[]
+  stories     Story[]
+  giftAccounts GiftAccount[]
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  invitationId  String
+  type          String   // "AKAD" | "RESEPSI" (string dulu biar simpel)
+  date          DateTime
+  startTime     String?  // Format: "HH:mm" (e.g., "14:00")
+  endDate       DateTime?
+  endTime       String?  // Format: "HH:mm" (e.g., "17:00")
+  venueName     String
+  address       String
+  mapsUrl       String?
+  order         Int      @default(0)
+
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+}
+
+model Rsvp {
+  id            String   @id @default(cuid())
+  invitationId  String
+  guestName     String
+  status        String   // "HADIR" | "TIDAK" | "RAGU"
+  pax           Int      @default(1)
+  message       String?
+  createdAt     DateTime @default(now())
+
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Guestbook {
+  id            String   @id @default(cuid())
+  invitationId  String
+  name          String
+  message       String
+  isApproved    Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model SocialLink {
+  id           String   @id @default(cuid())
+  invitationId String
+  platform     String   // "instagram" | "tiktok" | "youtube" | "x" | "website"
+  username     String?
+  url          String
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model MediaItem {
+  id           String   @id @default(cuid())
+  invitationId String
+  type         String   // "IMAGE" | "VIDEO"
+  url          String
+  caption      String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Story {
+  id            String   @id @default(cuid())
+  invitationId  String
+  title         String
+  description   String   @db.Text
+  date          DateTime?
+  imageUrl      String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  category      String   @default("Default")
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model GiftAccount {
+  id            String   @id @default(cuid())
+  invitationId  String
+  bankName      String
+  accountNumber String
+  accountHolder String
+  qrCodeUrl     String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
