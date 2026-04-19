@@ -122,7 +122,7 @@ export default function JawaModern({ data }: TemplateProps) {
 
             {/* GUNUNGAN */}
             <motion.img
-              src="/ornaments/gunungan 1.png"
+              src="/ornaments/gunungan-1.png"
               className="absolute bottom-[18%] right-[-1%] w-[25%] z-30 pointer-events-none origin-bottom"
               initial={{ x: 100, opacity: 0 }}
               animate={
@@ -149,7 +149,7 @@ export default function JawaModern({ data }: TemplateProps) {
 
             {/* FLORAL */}
             <motion.img
-              src="/ornaments/rantai daun 1.png"
+              src="/ornaments/rantai-daun-1.png"
               className="absolute bottom-[-12%] right-[-2%] w-[70%] z-25 pointer-events-none origin-bottom-right"
               initial={{ x: 100, opacity: 0 }}
               animate={
@@ -509,7 +509,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 className="absolute top-[-1%] left-[-30%] w-[80%] z-10 pointer-events-none origin-bottom-right"
               >
                 <motion.img
-                  src="/jawa_modern/Ranting kanan.png"
+                  src="/jawa_modern/ranting-kanan-base.png"
                   alt=""
                   className="w-full h-auto"
                   style={{ transformOrigin: "90% 100%" }}
@@ -531,7 +531,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 className="absolute top-[-1%] right-[-30%] w-[80%] z-10 pointer-events-none origin-bottom-left"
               >
                 <motion.img
-                  src="/jawa_modern/Ranting kiri.png"
+                  src="/jawa_modern/ranting-kiri.png"
                   alt=""
                   className="w-full h-auto"
                   style={{ transformOrigin: "10% 100%" }}
@@ -723,7 +723,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 >
                   {/* motion.img: handles perpetual rotation — pivot at its own center */}
                   <motion.img
-                    src="/jawa_modern/Brush Batik.png"
+                    src="/jawa_modern/brush-batik-1.png"
                     alt=""
                     className="w-full h-auto opacity-95 block"
                     animate={{ rotate: 360 }}
@@ -741,7 +741,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 className="absolute top-[-23%] sm:top-[-23%] left-[-20%] sm:left-[-20%] w-[77%] sm:w-[77%] max-w-[350px] z-30 pointer-events-none"
               >
                 <motion.img
-                  src="/jawa_modern/Ranting kanan Shadow.png"
+                  src="/jawa_modern/ranting-kanan-shadow.png"
                   alt=""
                   className="w-full h-auto"
                   style={{ transformOrigin: "80% 90%" }}
@@ -762,7 +762,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 className="absolute top-[-22%] sm:top-[-22%] right-[-18%] sm:right-[-18%] w-[75%] sm:w-[75%] max-w-[350px] z-30 pointer-events-none"
               >
                 <motion.img
-                  src="/jawa_modern/Ranting Kiri Shadow.png"
+                  src="/jawa_modern/ranting-kiri-shadow.png"
                   alt=""
                   className="w-full h-auto"
                   style={{ transformOrigin: "20% 90%" }}
@@ -834,7 +834,7 @@ export default function JawaModern({ data }: TemplateProps) {
               className="absolute md:top-[15%] md:left-22 top-[19%] left-[18%] w-[70%] z-0 pointer-events-none"
             >
               <motion.img
-                src="/jawa_modern/Brush Batik.png"
+                src="/jawa_modern/brush-batik-1.png"
                 alt=""
                 className="w-full h-auto"
                 animate={{
@@ -857,7 +857,7 @@ export default function JawaModern({ data }: TemplateProps) {
               className="absolute inset-0 w-full h-[85%] top-[18%] z-10 overflow-hidden"
             >
               <img
-                src="/jawa_modern/Background Hadiah.png"
+                src="/jawa_modern/background-hadiah.png"
                 alt=""
                 className="w-full h-full object-cover object-center pointer-events-none opacity-100 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
               />
@@ -893,7 +893,7 @@ export default function JawaModern({ data }: TemplateProps) {
               className="absolute top-[2%] right-[-25%] w-[55%] max-w-[240px] z-20 pointer-events-none origin-bottom-left"
             >
               <motion.img
-                src="/jawa_modern/Ranting Kiri Shadow.png"
+                src="/jawa_modern/ranting-kiri-shadow.png"
                 alt=""
                 className="w-full h-auto drop-shadow-2xl"
                 animate={{
@@ -983,7 +983,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 transition={{ duration: 2, ease: "easeOut" }}
                 className="absolute w-[80%] sm:w-[80%] max-w-[600px] top-[-10%] md:top-[-20%] left-[5.5%] z-0 pointer-events-none"
               >
-                <img src="/jawa_modern/Brush-Batik.png" alt="" className="w-full h-auto" />
+                <img src="/jawa_modern/brush-batik-2.png" alt="" className="w-full h-auto" />
               </motion.div>
 
               {/* Layer 2: Floral Bouquets (Framing) */}
@@ -995,7 +995,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
                 className="absolute left-[-17%] top-[20%] sm:left-[-17%] w-[75%] sm:w-[75%] max-w-[400px] z-40 pointer-events-none"
               >
-                <img src="/jawa_modern/Ranting Kiri Shadow.png" alt="" className="w-full h-auto drop-shadow-2xl scale-x-[-1]" />
+                <img src="/jawa_modern/ranting-kiri-shadow.png" alt="" className="w-full h-auto drop-shadow-2xl scale-x-[-1]" />
               </motion.div>
 
               {/* Right Bouquet (Mirrored) */}
@@ -1006,7 +1006,7 @@ export default function JawaModern({ data }: TemplateProps) {
                 transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
                 className="absolute right-[-17%] top-[20%] sm:right-[-17%] w-[75%] sm:w-[75%] max-w-[400px] z-40 pointer-events-none"
               >
-                <img src="/jawa_modern/Ranting Kiri Shadow.png" alt="" className="w-full h-auto drop-shadow-2xl" />
+                <img src="/jawa_modern/ranting-kiri-shadow.png" alt="" className="w-full h-auto drop-shadow-2xl" />
               </motion.div>
 
               {/* Layer 3: Central Gunungan */}
