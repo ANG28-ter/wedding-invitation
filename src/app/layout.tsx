@@ -35,12 +35,12 @@ export const metadata: Metadata = {
   creator: "AkaDev",
   icons: {
     icon: [
-      { url: "/logo/logo-akadev.png" },
-      { url: "/logo/logo-akadev.png", sizes: "192x192", type: "image/png" },
-      { url: "/logo/logo-akadev.png", sizes: "512x512", type: "image/png" },
+      { url: "/logo/logo-with-background.png" },
+      { url: "/logo/logo-with-background.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo-with-background.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/logo/logo-akadev.png", sizes: "180x180", type: "image/png" },
+      { url: "/logo/logo-with-background.png", sizes: "180x180", type: "image/png" },
     ],
   },
   openGraph: {
@@ -49,13 +49,13 @@ export const metadata: Metadata = {
     siteName: "AkaDev Invitation",
     locale: "id_ID",
     type: "website",
-    images: [{ url: "/logo/logo-akadev.png" }],
+    images: [{ url: "/logo/logo-with-background.png" }],
   },
   twitter: {
     card: "summary",
     title: "AkaDev Invitation",
     description: "Platform undangan digital premium untuk hari spesial Anda.",
-    images: ["/logo/logo-akadev.png"],
+    images: ["/logo/logo-with-background.png"],
   },
 };
 
