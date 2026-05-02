@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/Toast";
-import ConfirmModal from "@/components/ConfirmModal";
-import AdminNavigationTabs from "@/components/AdminNavigationTabs";
+import InvitationPageShell from "@/components/admin/InvitationPageShell";
+import { Plus, Trash2, ExternalLink, Instagram, Youtube, Link2 } from "lucide-react";
 
 type SocialLink = {
     id: string;
@@ -17,9 +16,16 @@ type SocialLink = {
     createdAt: string;
 };
 
-type PageProps = {
-    params: Promise<{ id: string }>;
+type PageProps = { params: Promise<{ id: string }> };
+
+const PLATFORM_ICONS: Record<string, React.ReactNode> = {
+    instagram: <Instagram className="h-4 w-4" />,
+    youtube: <Youtube className="h-4 w-4" />,
 };
+
+function getPlatformIcon(platform: string) {
+    return PLATFORM_ICONS[platform.toLowerCase()] ?? <Link2 className="h-4 w-4" />;
+}
 
 export default function SocialLinksPage({ params }: PageProps) {
     const router = useRouter();
@@ -28,19 +34,14 @@ export default function SocialLinksPage({ params }: PageProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Form state
     const [platform, setPlatform] = useState("");
     const [username, setUsername] = useState("");
     const [url, setUrl] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const toast = useToast();
-    const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
     useEffect(() => {
-        params.then((p) => {
-            setInvitationId(p.id);
-            fetchSocialLinks(p.id);
-        });
+        params.then((p) => { setInvitationId(p.id); fetchSocialLinks(p.id); });
     }, [params]);
 
     async function fetchSocialLinks(id: string) {
@@ -49,219 +50,117 @@ export default function SocialLinksPage({ params }: PageProps) {
             if (!res.ok) throw new Error("Failed to fetch social links");
             const data = await res.json();
             setSocialLinks(data);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        } catch (err: any) { setError(err.message); }
+        finally { setLoading(false); }
     }
 
     async function handleAddLink(e: React.FormEvent) {
-        e.preventDefault();
-        setSubmitting(true);
-        setError(null);
-
+        e.preventDefault(); setSubmitting(true); setError(null);
         try {
             const res = await fetch(`/api/invitations/${invitationId}/socials`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    platform,
-                    username: username || null,
-                    url,
-                    order: socialLinks.length,
-                }),
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ platform, username: username || null, url, order: socialLinks.length }),
             });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to add social link");
-            }
-
-            // Reset form
-            setPlatform("");
-            setUsername("");
-            setUrl("");
-
-            // Refresh list
+            if (!res.ok) throw new Error("Failed to add social link");
+            setPlatform(""); setUsername(""); setUrl("");
             await fetchSocialLinks(invitationId);
-
             toast.success("Link sosial berhasil ditambahkan!");
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setSubmitting(false);
-        }
+        } catch (err: any) { setError(err.message); }
+        finally { setSubmitting(false); }
     }
 
     async function handleDelete(socialId: string) {
-        if (!confirm("Are you sure you want to delete this social link?")) return;
-
+        if (!confirm("Hapus link sosial ini?")) return;
         try {
-            const res = await fetch(`/api/invitations/${invitationId}/socials/${socialId}`, {
-                method: "DELETE",
-            });
-
-            if (!res.ok) throw new Error("Failed to delete social link");
-
-            // Refresh list
+            await fetch(`/api/invitations/${invitationId}/socials/${socialId}`, { method: "DELETE" });
             await fetchSocialLinks(invitationId);
-
             toast.success("Link sosial berhasil dihapus!");
-        } catch (err: any) {
-            setError(err.message);
-        }
+        } catch (err: any) { setError(err.message); }
     }
 
-    if (loading) {
-        return (
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    <p className="text-center">Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return (
+        <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--color-primary))] border-t-transparent"></div>
+        </div>
+    );
 
     return (
         <>
             <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link
-                            href={`/admin/invitations/${invitationId}`}
-                            className="text-sm text-neutral-400 hover:text-neutral-200"
-                        >
-                            ← Back to Invitation Details
-                        </Link>
-                        <h1 className="mt-2 text-2xl font-semibold text-white">Social Media Links</h1>
-                        <p className="text-sm text-neutral-400">Manage Instagram, TikTok, and other social links</p>
-                    </div>
 
-                    {/* Navigation Tabs */}
-                    <AdminNavigationTabs invitationId={invitationId} activePage="socials" />
+            <InvitationPageShell invitationId={invitationId} activePage="socials"
+                title="Social Media Links" subtitle="Tambahkan Instagram, TikTok, YouTube, dan platform lainnya." error={error}>
 
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-                            {error}
+                {/* Add New Form */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Tambah Link Baru</h2>
+                    <form onSubmit={handleAddLink} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="admin-label">Platform *</label>
+                                <input type="text" value={platform} onChange={(e) => setPlatform(e.target.value)}
+                                    required className="admin-input" placeholder="Instagram, TikTok, YouTube..." maxLength={30} />
+                            </div>
+                            <div>
+                                <label className="admin-label">Username (Opsional)</label>
+                                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)}
+                                    className="admin-input" placeholder="@namaakun" maxLength={60} />
+                            </div>
                         </div>
-                    )}
-
-                    {/* Add New Link Form */}
-                    <div className="mb-8 rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">Add New Social Link</h2>
-
-                        <form onSubmit={handleAddLink} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Platform *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={platform}
-                                    onChange={(e) => setPlatform(e.target.value)}
-                                    required
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="Instagram, TikTok, YouTube, etc."
-                                    maxLength={30}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Username (Optional)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="@username"
-                                    maxLength={60}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    URL *
-                                </label>
-                                <input
-                                    type="url"
-                                    value={url}
-                                    onChange={(e) => setUrl(e.target.value)}
-                                    required
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="https://instagram.com/username"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="rounded-lg bg-emerald-600 px-6 py-2 text-sm text-white hover:bg-emerald-500 disabled:opacity-50 cursor-pointer"
-                            >
-                                {submitting ? "Adding..." : "+ Add Social Link"}
+                        <div>
+                            <label className="admin-label">URL *</label>
+                            <input type="url" value={url} onChange={(e) => setUrl(e.target.value)}
+                                required className="admin-input" placeholder="https://instagram.com/namaakun" />
+                        </div>
+                        <div className="flex justify-end pt-2">
+                            <button type="submit" disabled={submitting} className="admin-btn-primary">
+                                <Plus className="h-4 w-4" />
+                                {submitting ? "Menyimpan..." : "Tambah Link"}
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
+                </div>
 
-                    {/* Social Links List */}
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">
-                            Existing Links ({socialLinks.length})
-                        </h2>
-
-                        {socialLinks.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-neutral-400">
-                                No social links yet. Add your first link above.
-                            </p>
-                        ) : (
-                            <div className="space-y-3">
-                                {socialLinks.map((link) => (
-                                    <div
-                                        key={link.id}
-                                        className="flex items-center justify-between rounded-lg border border-neutral-200 p-4"
-                                    >
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
-                                                    {link.platform}
-                                                </span>
+                {/* Links List */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Daftar Link ({socialLinks.length})</h2>
+                    {socialLinks.length === 0 ? (
+                        <div className="py-12 text-center opacity-50">
+                            <Link2 className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                            <p className="text-sm">Belum ada link sosial. Tambahkan di atas.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {socialLinks.map((link) => (
+                                <div key={link.id} className="flex items-center justify-between rounded-xl border border-current/10 bg-current/5 p-4 hover:border-[rgb(var(--color-primary))]/20 transition-colors">
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[rgb(var(--color-primary))]/15 text-[rgb(var(--color-primary))] shrink-0">
+                                            {getPlatformIcon(link.platform)}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <span className="text-sm font-semibold">{link.platform}</span>
                                                 {link.username && (
-                                                    <span className="text-sm text-neutral-600">
-                                                        {link.username}
-                                                    </span>
+                                                    <span className="text-xs opacity-50">{link.username}</span>
                                                 )}
                                             </div>
-                                            <a
-                                                href={link.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="mt-1 block text-sm text-blue-600 hover:underline"
-                                            >
-                                                {link.url}
+                                            <a href={link.url} target="_blank" rel="noopener noreferrer"
+                                                className="text-xs text-[rgb(var(--color-primary))] hover:underline truncate flex items-center gap-1">
+                                                <ExternalLink className="h-3 w-3 shrink-0" />
+                                                <span className="truncate">{link.url}</span>
                                             </a>
-                                            <p className="mt-1 text-xs text-neutral-400">
-                                                Order: {link.order}
-                                            </p>
                                         </div>
-
-                                        <button
-                                            onClick={() => handleDelete(link.id)}
-                                            className="ml-4 rounded-lg border border-red-300 bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500 cursor-pointer"
-                                        >
-                                            Delete
-                                        </button>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                    <button onClick={() => handleDelete(link.id)}
+                                        className="ml-4 rounded-lg border border-red-500/30 p-2 text-red-500 hover:bg-red-500/10 transition-colors shrink-0" title="Hapus">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </div>
+            </InvitationPageShell>
         </>
     );
 }
-

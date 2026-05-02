@@ -16,6 +16,9 @@ model Invitation {
   coverImage  String?
   coverVideo  String?
   theme       String   @default("jawa-modern")
+  package     String   @default("Premium")
+  rating      Float    @default(5.0)
+  ratingCount Int      @default(1)
   heroImage   String?
   rsvtImage   String?
 
@@ -45,6 +48,7 @@ model Invitation {
   mediaItems  MediaItem[]
   stories     Story[]
   giftAccounts GiftAccount[]
+  testimonials Testimonial[]
 }
 
 model Event {
@@ -148,6 +152,21 @@ model GiftAccount {
   updatedAt     DateTime @updatedAt
 
   invitation    Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model Testimonial {
+  id           String   @id @default(cuid())
+  invitationId String?
+  name         String
+  role         String?
+  message      String   @db.Text
+  rating       Int      @default(5)
+  isApproved   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  invitation   Invitation? @relation(fields: [invitationId], references: [id], onDelete: SetNull)
 
   @@index([invitationId])
 }

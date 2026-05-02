@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/Toast";
 import ConfirmModal from "@/components/ConfirmModal";
-import AdminNavigationTabs from "@/components/AdminNavigationTabs";
+import InvitationPageShell from "@/components/admin/InvitationPageShell";
+import { Plus, Trash2, Pencil, X, Upload, Link2, BookHeart, Calendar, Tag } from "lucide-react";
 
 type Story = {
     id: string;
@@ -18,9 +18,7 @@ type Story = {
     category: string;
 };
 
-type PageProps = {
-    params: Promise<{ id: string }>;
-};
+type PageProps = { params: Promise<{ id: string }> };
 
 export default function StoryManagementPage({ params }: PageProps) {
     const router = useRouter();
@@ -31,7 +29,6 @@ export default function StoryManagementPage({ params }: PageProps) {
     const toast = useToast();
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-    // Form state
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [date, setDate] = useState("");
@@ -40,16 +37,12 @@ export default function StoryManagementPage({ params }: PageProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [category, setCategory] = useState("Default");
 
-    // Upload mode: "url" or "upload"
     const [uploadMode, setUploadMode] = useState<"url" | "upload">("url");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
-        params.then((p) => {
-            setInvitationId(p.id);
-            fetchStories(p.id);
-        });
+        params.then((p) => { setInvitationId(p.id); fetchStories(p.id); });
     }, [params]);
 
     async function fetchStories(id: string) {
@@ -58,410 +51,235 @@ export default function StoryManagementPage({ params }: PageProps) {
             if (!res.ok) throw new Error("Failed to fetch stories");
             const data = await res.json();
             setStories(data.data || []);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        } catch (err: any) { setError(err.message); }
+        finally { setLoading(false); }
     }
 
     async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setSubmitting(true);
-
+        e.preventDefault(); setSubmitting(true);
         try {
             let finalImageUrl = imageUrl;
-
-            // If upload mode and file selected, upload to Supabase first
             if (uploadMode === "upload" && selectedFile) {
                 setUploading(true);
                 const formData = new FormData();
                 formData.append("file", selectedFile);
-
-                const uploadRes = await fetch("/api/upload", {
-                    method: "POST",
-                    body: formData,
-                });
-
+                const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
                 if (!uploadRes.ok) throw new Error("Failed to upload image");
-
                 const uploadData = await uploadRes.json();
-                finalImageUrl = uploadData.data.url; // Fixed: use data.url
+                finalImageUrl = uploadData.data.url;
                 setUploading(false);
             }
 
-            const payload = {
-                title,
-                description,
-                date: date || null,
-                imageUrl: finalImageUrl || null,
-                order: stories.length,
-                category: category || "Default",
-            };
+            const payload = { title, description, date: date || null, imageUrl: finalImageUrl || null, order: stories.length, category: category || "Default" };
 
             if (editingId) {
-                // Update
                 const res = await fetch(`/api/invitations/${invitationId}/story/${editingId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
+                    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
                 });
-
                 if (!res.ok) throw new Error("Failed to update story");
                 toast.success("Story berhasil diupdate!");
             } else {
-                // Create
                 const res = await fetch(`/api/invitations/${invitationId}/story`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
+                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
                 });
-
                 if (!res.ok) throw new Error("Failed to create story");
                 toast.success("Story berhasil ditambahkan!");
             }
 
-            // Reset form
-            setTitle("");
-            setDescription("");
-            setDate("");
-            setImageUrl("");
-            setCategory("Default");
-            setEditingId(null);
-            setSelectedFile(null);
-            setUploadMode("url");
-
+            setTitle(""); setDescription(""); setDate(""); setImageUrl(""); setCategory("Default");
+            setEditingId(null); setSelectedFile(null); setUploadMode("url");
             await fetchStories(invitationId);
-        } catch (err: any) {
-            toast.error(err.message || "Gagal menyimpan story");
-        } finally {
-            setSubmitting(false);
-        }
+        } catch (err: any) { toast.error(err.message || "Gagal menyimpan story"); }
+        finally { setSubmitting(false); }
     }
 
     function handleEdit(story: Story) {
-        setEditingId(story.id);
-        setTitle(story.title);
-        setDescription(story.description);
+        setEditingId(story.id); setTitle(story.title); setDescription(story.description);
         setDate(story.date ? story.date.split("T")[0] : "");
-        setImageUrl(story.imageUrl || "");
-        setCategory(story.category || "Default");
+        setImageUrl(story.imageUrl || ""); setCategory(story.category || "Default");
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function cancelEdit() {
-        setEditingId(null);
-        setTitle("");
-        setDescription("");
-        setDate("");
-        setImageUrl("");
-        setCategory("Default");
-        setSelectedFile(null);
-        setUploadMode("url");
+        setEditingId(null); setTitle(""); setDescription(""); setDate("");
+        setImageUrl(""); setCategory("Default"); setSelectedFile(null); setUploadMode("url");
     }
 
     async function handleDelete(storyId: string) {
         setDeleteConfirm(null);
-
         try {
-            const res = await fetch(`/api/invitations/${invitationId}/story/${storyId}`, {
-                method: "DELETE",
-            });
-
+            const res = await fetch(`/api/invitations/${invitationId}/story/${storyId}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Failed to delete story");
-
             toast.success("Story berhasil dihapus!");
             await fetchStories(invitationId);
-        } catch (err: any) {
-            toast.error(err.message || "Gagal menghapus story");
-        }
+        } catch (err: any) { toast.error(err.message || "Gagal menghapus story"); }
     }
 
-    if (loading) {
-        return (
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    <p className="text-center text-neutral-400">Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return (
+        <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--color-primary))] border-t-transparent"></div>
+        </div>
+    );
 
     return (
         <>
-            <ConfirmModal
-                isOpen={deleteConfirm !== null}
-                title="Hapus Story"
+            <ConfirmModal isOpen={deleteConfirm !== null} title="Hapus Story"
                 message="Yakin ingin menghapus story ini? Tindakan ini tidak dapat dibatalkan."
-                confirmText="Hapus"
-                cancelText="Batal"
+                confirmText="Hapus" cancelText="Batal"
                 onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
-                onCancel={() => setDeleteConfirm(null)}
-                variant="danger"
-            />
+                onCancel={() => setDeleteConfirm(null)} variant="danger" />
             <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link
-                            href={`/admin/invitations/${invitationId}`}
-                            className="text-sm text-neutral-400 hover:text-neutral-200"
-                        >
-                            ← Back to Invitation Details
-                        </Link>
-                        <h1 className="mt-2 text-2xl font-semibold text-white">Our Story</h1>
-                        <p className="text-sm text-neutral-400">Kelola timeline cerita perjalanan cinta</p>
+
+            <InvitationPageShell invitationId={invitationId} activePage="story"
+                title="Our Story" subtitle="Kelola timeline perjalanan cinta yang ditampilkan di undangan." error={error}>
+
+                {/* Add/Edit Form */}
+                <div className={`admin-card ${editingId ? "border-[rgb(var(--color-primary))]/40" : ""}`}>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="admin-section-title mb-0">
+                            {editingId ? "Edit Cerita" : "Tambah Cerita Baru"}
+                        </h2>
+                        {editingId && (
+                            <button onClick={cancelEdit} className="flex items-center gap-1.5 text-xs opacity-60 hover:opacity-100 transition-opacity">
+                                <X className="h-3.5 w-3.5" /> Batal Edit
+                            </button>
+                        )}
                     </div>
 
-                    {/* Navigation Tabs */}
-                    <AdminNavigationTabs invitationId={invitationId} activePage="story" />
-
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Add/Edit Form */}
-                    <div className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">
-                            {editingId ? "Edit Story" : "Tambah Story Baru"}
-                        </h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Judul *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    required
-                                    placeholder="e.g., Pertemuan Pertama"
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                />
+                                <label className="admin-label">Judul *</label>
+                                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required
+                                    className="admin-input" placeholder="Pertemuan Pertama" />
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Deskripsi *
-                                </label>
-                                <textarea
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    required
-                                    rows={4}
-                                    placeholder="Ceritakan momen spesial ini..."
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Tanggal (Opsional)
-                                </label>
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Kategori (e.g., Awal Kenal, Lamaran)
-                                </label>
-                                <input
-                                    type="text"
-                                    list="category-suggestions"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    placeholder="Default"
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                />
-                                <datalist id="category-suggestions">
-                                    <option value="Beginning" />
-                                    <option value="First Date" />
-                                    <option value="Proposal" />
-                                    <option value="Our Wedding" />
-                                </datalist>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Gambar (Opsional)
-                                </label>
-
-                                {/* Mode Toggle */}
-                                <div className="mt-2 flex gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setUploadMode("url");
-                                            setSelectedFile(null);
-                                        }}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-medium ${uploadMode === "url"
-                                            ? "bg-emerald-600 text-white"
-                                            : "border border-neutral-700 bg-neutral-800 text-neutral-400"
-                                            }`}
-                                    >
-                                        URL
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setUploadMode("upload");
-                                            setImageUrl("");
-                                        }}
-                                        className={`rounded-lg px-3 py-1.5 text-xs font-medium ${uploadMode === "upload"
-                                            ? "bg-emerald-600 text-white"
-                                            : "border border-neutral-700 bg-neutral-800 text-neutral-400"
-                                            }`}
-                                    >
-                                        Upload File
-                                    </button>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="admin-label">Tanggal</label>
+                                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="admin-input" />
                                 </div>
-
-                                {/* URL Input */}
-                                {uploadMode === "url" && (
-                                    <div className="mt-2">
-                                        <input
-                                            type="url"
-                                            value={imageUrl}
-                                            onChange={(e) => setImageUrl(e.target.value)}
-                                            placeholder="https://..."
-                                            className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                        />
-                                    </div>
-                                )}
-
-                                {/* File Upload */}
-                                {uploadMode === "upload" && (
-                                    <div className="mt-2">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) setSelectedFile(file);
-                                            }}
-                                            className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white file:mr-4 file:rounded file:border-0 file:bg-emerald-600 file:px-4 file:py-1 file:text-sm file:text-white hover:file:bg-emerald-500"
-                                        />
-                                        {selectedFile && (
-                                            <div className="mt-2">
-                                                <img
-                                                    src={URL.createObjectURL(selectedFile)}
-                                                    alt="Preview"
-                                                    className="h-32 w-full rounded-lg object-cover"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                <p className="mt-1 text-xs text-neutral-500">
-                                    {uploadMode === "url"
-                                        ? "Masukkan URL gambar dari sumber eksternal"
-                                        : "Upload gambar dari komputer Anda (max 5MB)"}
-                                </p>
+                                <div>
+                                    <label className="admin-label">Kategori</label>
+                                    <input type="text" list="category-suggestions" value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        className="admin-input" placeholder="Default" />
+                                    <datalist id="category-suggestions">
+                                        <option value="Beginning" />
+                                        <option value="First Date" />
+                                        <option value="Proposal" />
+                                        <option value="Our Wedding" />
+                                    </datalist>
+                                </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-2">
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
-                                >
-                                    {submitting ? "Menyimpan..." : editingId ? "Update Story" : "Tambah Story"}
+                        <div>
+                            <label className="admin-label">Deskripsi *</label>
+                            <textarea value={description} onChange={(e) => setDescription(e.target.value)} required
+                                rows={3} className="admin-input resize-none" placeholder="Ceritakan momen spesial ini..." />
+                        </div>
+
+                        <div>
+                            <label className="admin-label">Gambar (Opsional)</label>
+                            <div className="flex gap-2 mt-2 mb-3 p-1 rounded-xl border border-current/10 bg-current/5 w-fit">
+                                <button type="button" onClick={() => { setUploadMode("url"); setSelectedFile(null); }}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${uploadMode === "url"
+                                        ? "bg-[rgb(var(--color-primary))] text-[#1a1a1a] shadow"
+                                        : "opacity-50 hover:opacity-80"
+                                    }`}>
+                                    <Link2 className="h-3.5 w-3.5" /> URL
                                 </button>
-                                {editingId && (
-                                    <button
-                                        type="button"
-                                        onClick={cancelEdit}
-                                        className="rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-2 text-sm text-white hover:bg-neutral-700"
-                                    >
-                                        Batal
-                                    </button>
-                                )}
+                                <button type="button" onClick={() => { setUploadMode("upload"); setImageUrl(""); }}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${uploadMode === "upload"
+                                        ? "bg-[rgb(var(--color-primary))] text-[#1a1a1a] shadow"
+                                        : "opacity-50 hover:opacity-80"
+                                    }`}>
+                                    <Upload className="h-3.5 w-3.5" /> Upload
+                                </button>
                             </div>
-                        </form>
-                    </div>
 
-                    {/* Stories List */}
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">
-                            Timeline ({stories.length})
-                        </h2>
+                            {uploadMode === "url" ? (
+                                <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
+                                    className="admin-input" placeholder="https://..." />
+                            ) : (
+                                <div>
+                                    <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) setSelectedFile(f); }}
+                                        className="admin-input cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-[rgb(var(--color-primary))]/20 file:text-[rgb(var(--color-primary))] file:text-xs file:font-semibold" />
+                                    {selectedFile && (
+                                        <div className="mt-3 rounded-xl overflow-hidden border border-current/10 max-w-xs">
+                                            <img src={URL.createObjectURL(selectedFile)} alt="Preview" className="w-full h-36 object-cover" />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
-                        {stories.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-neutral-400">
-                                Belum ada story. Tambahkan momen spesial perjalanan cinta Anda.
-                            </p>
-                        ) : (
-                            <div className="space-y-3">
-                                {stories.map((story) => (
-                                    <div
-                                        key={story.id}
-                                        className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4"
-                                    >
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="flex-1">
-                                                {story.imageUrl && (
-                                                    <img
-                                                        src={story.imageUrl}
-                                                        alt={story.title}
-                                                        className="mb-3 h-32 w-full rounded-lg object-cover"
-                                                    />
-                                                )}
-                                                <h3 className="font-medium text-white">{story.title}</h3>
-                                                {story.date && (
-                                                    <p className="mt-1 text-xs text-neutral-500">
-                                                        {new Date(story.date).toLocaleDateString("id-ID", {
-                                                            year: "numeric",
-                                                            month: "long",
-                                                            day: "numeric",
-                                                        })}
-                                                        <span className="ml-2 rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] text-emerald-400">
-                                                            {story.category}
+                        <div className="flex gap-3 justify-end pt-2">
+                            {editingId && (
+                                <button type="button" onClick={cancelEdit} className="admin-btn-ghost">
+                                    <X className="h-4 w-4" /> Batal
+                                </button>
+                            )}
+                            <button type="submit" disabled={submitting || uploading} className="admin-btn-primary">
+                                {editingId ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                {uploading ? "Mengupload..." : submitting ? "Menyimpan..." : editingId ? "Update Cerita" : "Tambah Cerita"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Stories Timeline */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Timeline ({stories.length} Cerita)</h2>
+
+                    {stories.length === 0 ? (
+                        <div className="py-12 text-center opacity-50">
+                            <BookHeart className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                            <p className="text-sm">Belum ada cerita. Tambahkan momen spesial di atas.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {stories.map((story) => (
+                                <div key={story.id} className="rounded-xl border border-current/10 bg-current/5 overflow-hidden hover:border-[rgb(var(--color-primary))]/20 transition-colors">
+                                    {story.imageUrl && (
+                                        <img src={story.imageUrl} alt={story.title} className="w-full h-40 object-cover" />
+                                    )}
+                                    <div className="p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold mb-1">{story.title}</h3>
+                                                <div className="flex items-center gap-2 flex-wrap mb-2">
+                                                    {story.date && (
+                                                        <span className="flex items-center gap-1 text-xs opacity-50">
+                                                            <Calendar className="h-3 w-3" />
+                                                            {new Date(story.date).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}
                                                         </span>
-                                                    </p>
-                                                )}
-                                                {!story.date && (
-                                                    <p className="mt-1 text-xs text-neutral-500">
-                                                        <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] text-emerald-400">
-                                                            {story.category}
-                                                        </span>
-                                                    </p>
-                                                )}
-                                                <p className="mt-2 text-sm text-neutral-300">
-                                                    {story.description}
-                                                </p>
+                                                    )}
+                                                    <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg bg-[rgb(var(--color-primary))]/15 text-[rgb(var(--color-primary))]">
+                                                        <Tag className="h-3 w-3" />
+                                                        {story.category}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm opacity-60 leading-relaxed line-clamp-3">{story.description}</p>
                                             </div>
-
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(story)}
-                                                    className="rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs text-white hover:bg-neutral-700"
-                                                >
-                                                    Edit
+                                            <div className="flex gap-2 shrink-0">
+                                                <button onClick={() => handleEdit(story)}
+                                                    className="rounded-lg border border-current/15 p-2 opacity-60 hover:opacity-100 hover:border-[rgb(var(--color-primary))]/40 transition-all" title="Edit">
+                                                    <Pencil className="h-4 w-4" />
                                                 </button>
-                                                <button
-                                                    onClick={() => setDeleteConfirm(story.id)}
-                                                    className="rounded-lg border border-red-900 bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-500"
-                                                >
-                                                    Delete
+                                                <button onClick={() => setDeleteConfirm(story.id)}
+                                                    className="rounded-lg border border-red-500/30 p-2 text-red-500 hover:bg-red-500/10 transition-colors" title="Hapus">
+                                                    <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </div>
+            </InvitationPageShell>
         </>
     );
 }

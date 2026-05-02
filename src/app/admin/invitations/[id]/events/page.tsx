@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/Toast";
 import ConfirmModal from "@/components/ConfirmModal";
-import AdminNavigationTabs from "@/components/AdminNavigationTabs";
+import InvitationPageShell from "@/components/admin/InvitationPageShell";
+import { Plus, Trash2, MapPin, Clock, Calendar } from "lucide-react";
 
 type Event = {
     id: string;
@@ -131,10 +131,8 @@ export default function EventsManagementPage({ params }: PageProps) {
 
     if (loading) {
         return (
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    <p className="text-center text-neutral-400">Loading...</p>
-                </div>
+            <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--color-primary))] border-t-transparent"></div>
             </div>
         );
     }
@@ -152,210 +150,126 @@ export default function EventsManagementPage({ params }: PageProps) {
                 variant="danger"
             />
             <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link
-                            href={`/admin/invitations/${invitationId}`}
-                            className="text-sm text-neutral-400 hover:text-neutral-200"
-                        >
-                            ← Back to Invitation Details
-                        </Link>
-                        <h1 className="mt-2 text-2xl font-semibold text-white">Kelola Acara</h1>
-                        <p className="text-sm text-neutral-400">Tambah dan kelola acara pernikahan</p>
-                    </div>
 
-                    {/* Navigation Tabs */}
-                    <AdminNavigationTabs invitationId={invitationId} activePage="events" />
+            <InvitationPageShell
+                invitationId={invitationId}
+                activePage="events"
+                title="Kelola Acara"
+                subtitle="Tambah dan kelola jadwal acara pernikahan."
+                error={error}
+            >
+                {/* Add New Event Form */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Tambah Acara Baru</h2>
 
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-                            {error}
+                    <form onSubmit={handleAddEvent} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="admin-label">Jenis Acara *</label>
+                                <select value={type} onChange={(e) => setType(e.target.value)} required className="admin-input">
+                                    <option value="">Pilih Jenis Acara</option>
+                                    <option value="AKAD">Akad Nikah</option>
+                                    <option value="RESEPSI">Resepsi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="admin-label">Tanggal *</label>
+                                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="admin-input" />
+                            </div>
                         </div>
-                    )}
 
-                    {/* Add New Event Form */}
-                    <div className="mb-8 rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">Tambah Acara Baru</h2>
-
-                        <form onSubmit={handleAddEvent} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Jenis Acara *
-                                    </label>
-                                    <select
-                                        value={type}
-                                        onChange={(e) => setType(e.target.value)}
-                                        required
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                    >
-                                        <option value="">Pilih Jenis Acara</option>
-                                        <option value="AKAD">Akad Nikah</option>
-                                        <option value="RESEPSI">Resepsi</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Tanggal *
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        required
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Jam Mulai (Opsional)
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={startTime}
-                                        onChange={(e) => setStartTime(e.target.value)}
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Jam Selesai (Opsional)
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={endTime}
-                                        onChange={(e) => setEndTime(e.target.value)}
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white"
-                                    />
-                                </div>
-                            </div>
-
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Nama Tempat *
-                                </label>
-                                <input
-                                    type="text"
-                                    value={venueName}
-                                    onChange={(e) => setVenueName(e.target.value)}
-                                    required
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="Gedung Serbaguna, Masjid, dll"
-                                />
+                                <label className="admin-label">Jam Mulai (Opsional)</label>
+                                <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="admin-input" />
                             </div>
-
                             <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Alamat Lengkap *
-                                </label>
-                                <textarea
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    required
-                                    rows={2}
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="Jl. Contoh No. 123, Jakarta"
-                                />
+                                <label className="admin-label">Jam Selesai (Opsional)</label>
+                                <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="admin-input" />
                             </div>
+                        </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-neutral-300">
-                                    Link Google Maps (Opsional)
-                                </label>
-                                <input
-                                    type="url"
-                                    value={mapsUrl}
-                                    onChange={(e) => setMapsUrl(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                    placeholder="https://maps.google.com/..."
-                                />
-                            </div>
+                        <div>
+                            <label className="admin-label">Nama Tempat *</label>
+                            <input type="text" value={venueName} onChange={(e) => setVenueName(e.target.value)} required className="admin-input" placeholder="Gedung Serbaguna, Masjid, dll" />
+                        </div>
 
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="rounded-lg bg-emerald-600 px-6 py-2 text-sm text-white hover:bg-emerald-500 disabled:opacity-50"
-                            >
-                                {submitting ? "Menambahkan..." : "+ Tambah Acara"}
+                        <div>
+                            <label className="admin-label">Alamat Lengkap *</label>
+                            <textarea value={address} onChange={(e) => setAddress(e.target.value)} required rows={2} className="admin-input" placeholder="Jl. Contoh No. 123, Jakarta" />
+                        </div>
+
+                        <div>
+                            <label className="admin-label">Link Google Maps (Opsional)</label>
+                            <input type="url" value={mapsUrl} onChange={(e) => setMapsUrl(e.target.value)} className="admin-input" placeholder="https://maps.google.com/..." />
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button type="submit" disabled={submitting} className="admin-btn-primary">
+                                <Plus className="h-4 w-4" />
+                                {submitting ? "Menambahkan..." : "Tambah Acara"}
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
+                </div>
 
-                    {/* Events List */}
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">
-                            Daftar Acara ({events.length})
-                        </h2>
+                {/* Events List */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Daftar Acara ({events.length})</h2>
 
-                        {events.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-neutral-400">
-                                Belum ada acara. Tambahkan acara pertama di atas.
-                            </p>
-                        ) : (
-                            <div className="space-y-3">
-                                {events.map((event) => (
-                                    <div
-                                        key={event.id}
-                                        className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4"
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <h3 className="font-medium text-white">
-                                                    {event.type === "AKAD" ? "Akad Nikah" : "Resepsi"}
-                                                </h3>
-                                                <p className="mt-1 text-sm text-neutral-400">
-                                                    📅 {new Date(event.date).toLocaleDateString("id-ID", {
-                                                        weekday: "long",
-                                                        year: "numeric",
-                                                        month: "long",
-                                                        day: "numeric",
-                                                    })}
+                    {events.length === 0 ? (
+                        <p className="py-8 text-center text-sm opacity-50">Belum ada acara. Tambahkan acara pertama di atas.</p>
+                    ) : (
+                        <div className="space-y-3">
+                            {events.map((event) => (
+                                <div key={event.id} className="group flex items-start justify-between rounded-xl border border-current/10 bg-current/5 p-4 hover:border-[rgb(var(--color-primary))]/30 transition-colors">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                                                event.type === "AKAD"
+                                                    ? "bg-[rgb(var(--color-primary))]/15 text-[rgb(var(--color-primary))]"
+                                                    : "bg-blue-500/15 text-blue-400"
+                                            }`}>
+                                                {event.type === "AKAD" ? "Akad Nikah" : "Resepsi"}
+                                            </span>
+                                        </div>
+                                        <div className="space-y-1 text-sm opacity-70">
+                                            <p className="flex items-center gap-2">
+                                                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                                                {new Date(event.date).toLocaleDateString("id-ID", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                                            </p>
+                                            {event.startTime && (
+                                                <p className="flex items-center gap-2">
+                                                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                                                    {event.startTime}{event.endTime && ` – ${event.endTime}`} WIB
                                                 </p>
-                                                {event.startTime && (
-                                                    <p className="mt-1 text-sm text-neutral-400">
-                                                        🕐 {event.startTime}
-                                                        {event.endTime && ` - ${event.endTime}`}
-                                                    </p>
-                                                )}
-                                                <p className="mt-1 text-sm text-neutral-400">
-                                                    📍 {event.venueName}
-                                                </p>
-                                                <p className="mt-1 text-xs text-neutral-500">
-                                                    {event.address}
-                                                </p>
-                                                {event.mapsUrl && (
-                                                    <a
-                                                        href={event.mapsUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="mt-2 inline-block text-xs text-emerald-400 hover:text-emerald-300"
-                                                    >
-                                                        Lihat di Maps →
-                                                    </a>
-                                                )}
-                                            </div>
-
-                                            <button
-                                                onClick={() => setDeleteConfirm(event.id)}
-                                                className="ml-4 rounded-lg border border-red-900 bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-500"
-                                            >
-                                                Delete
-                                            </button>
+                                            )}
+                                            <p className="flex items-center gap-2">
+                                                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                                <span className="font-medium opacity-100">{event.venueName}</span>
+                                            </p>
+                                            <p className="pl-5 text-xs opacity-60">{event.address}</p>
+                                            {event.mapsUrl && (
+                                                <a href={event.mapsUrl} target="_blank" rel="noopener noreferrer" className="pl-5 text-xs text-[rgb(var(--color-primary))] hover:underline">
+                                                    Lihat di Google Maps ↗
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+
+                                    <button
+                                        onClick={() => setDeleteConfirm(event.id)}
+                                        className="ml-4 rounded-lg border border-red-500/30 p-2 text-red-500 hover:bg-red-500/10 transition-colors"
+                                        title="Hapus"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </div>
+            </InvitationPageShell>
         </>
     );
 }

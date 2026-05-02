@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AdminNavigationTabs from "@/components/AdminNavigationTabs";
+import InvitationPageShell from "@/components/admin/InvitationPageShell";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/Toast";
+import { Save, Upload, Link2 } from "lucide-react";
 
 type Invitation = {
     id: string;
@@ -310,20 +312,16 @@ export default function InvitationEditPage({ params }: PageProps) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neutral-100 p-6">
-                <div className="mx-auto max-w-3xl">
-                    <p className="text-center">Loading...</p>
-                </div>
+            <div className="flex h-64 items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--color-primary))] border-t-transparent"></div>
             </div>
         );
     }
 
     if (error && !invitation) {
         return (
-            <div className="min-h-screen bg-neutral-100 p-6">
-                <div className="mx-auto max-w-3xl">
-                    <p className="text-center text-red-600">Error: {error}</p>
-                </div>
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 text-red-400">
+                Error: {error}
             </div>
         );
     }
@@ -331,66 +329,56 @@ export default function InvitationEditPage({ params }: PageProps) {
     return (
         <>
             <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-3xl">
-                    {/* Header */}
-                    <div className="mb-6 flex items-center justify-between">
-                        <div>
-                            <Link
-                                href="/admin"
-                                className="text-sm text-neutral-400 hover:text-neutral-200"
-                            >
-                                ← Back to Dashboard
-                            </Link>
-                            <h1 className="mt-2 text-2xl font-semibold text-white">
-                                Edit Invitation: {invitation?.groomName} & {invitation?.brideName}
-                            </h1>
-                            <p className="text-sm text-neutral-400">/{invitation?.slug}</p>
-                        </div>
-                    </div>
-
-                    {/* Navigation Tabs */}
-                    <AdminNavigationTabs invitationId={invitationId} activePage="details" />
-
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-                            {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSave} className="space-y-6">
+            <InvitationPageShell
+                invitationId={invitationId}
+                activePage="details"
+                groomName={invitation?.groomName}
+                brideName={invitation?.brideName}
+                slug={invitation?.slug}
+                title="Edit Detail Undangan"
+                subtitle="Perbarui informasi dasar, tema, media, dan konten undangan."
+                error={error}
+                headerAction={
+                    <button
+                        type="submit"
+                        form="invitation-details-form"
+                        disabled={saving || uploading}
+                        className="admin-btn-primary"
+                    >
+                        <Save className="h-4 w-4" />
+                        {uploading ? "Uploading..." : saving ? "Menyimpan..." : "Simpan Perubahan"}
+                    </button>
+                }
+            >
+                    <form id="invitation-details-form" onSubmit={handleSave} className="space-y-6">
                         {/* Basic Information */}
-                        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Basic Information</h2>
+                        <div className="admin-card">
+                            <h2 className="admin-section-title">Informasi Dasar</h2>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Groom Name *
-                                    </label>
+                                    <label className="admin-label">Nama Mempelai Pria *</label>
                                     <input
                                         type="text"
                                         value={formData.groomName}
                                         onChange={(e) =>
                                             setFormData({ ...formData, groomName: e.target.value })
                                         }
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                        placeholder="John"
+                                        className="admin-input"
+                                        placeholder="Andika"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Bride Name *
-                                    </label>
+                                    <label className="admin-label">Nama Mempelai Wanita *</label>
                                     <input
                                         type="text"
                                         value={formData.brideName}
                                         onChange={(e) =>
                                             setFormData({ ...formData, brideName: e.target.value })
                                         }
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                        placeholder="Jane"
+                                        className="admin-input"
+                                        placeholder="Rani"
                                         required
                                     />
                                 </div>
@@ -398,20 +386,18 @@ export default function InvitationEditPage({ params }: PageProps) {
                         </div>
 
                         {/* Cover Media - Updated with File Upload */}
-                        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                            <h2 className="mb-4 text-lg font-semibold text-white">Theme & Desktop Cover</h2>
+                        <div className="admin-card">
+                            <h2 className="admin-section-title">Tema & Media Sampul</h2>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-neutral-300">
-                                        Choose Template Theme
-                                    </label>
+                                    <label className="admin-label">Pilih Tema Template</label>
                                     <select
                                         value={formData.theme}
                                         onChange={(e) =>
                                             setFormData({ ...formData, theme: e.target.value })
                                         }
-                                        className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
+                                        className="admin-input"
                                     >
                                         <option value="jawa-modern">Jawa Modern</option>
                                         <option value="jawa-kuno">Jawa Kuno</option>
@@ -1111,24 +1097,24 @@ export default function InvitationEditPage({ params }: PageProps) {
 
 
                         {/* Actions */}
-                        <div className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
+                        <div className="admin-card flex items-center justify-between gap-4">
                             <Link
-                                href="/admin"
-                                className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 hover:bg-neutral-800"
+                                href="/admin/invitations"
+                                className="admin-btn-ghost"
                             >
-                                Cancel
+                                Batal
                             </Link>
                             <button
                                 type="submit"
                                 disabled={saving || uploading}
-                                className="w-full rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="admin-btn-primary"
                             >
-                                {uploading ? "Uploading..." : saving ? "Saving..." : "Save Changes"}
+                                <Save className="h-4 w-4" />
+                                {uploading ? "Uploading..." : saving ? "Menyimpan..." : "Simpan Perubahan"}
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
+            </InvitationPageShell>
         </>
     );
 }

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/Toast";
 import ConfirmModal from "@/components/ConfirmModal";
-import AdminNavigationTabs from "@/components/AdminNavigationTabs";
+import InvitationPageShell from "@/components/admin/InvitationPageShell";
+import { Plus, Trash2, Upload, Link2, Pencil, X, Film, Image as ImageIcon } from "lucide-react";
 
 type MediaItem = {
     id: string;
@@ -17,9 +17,7 @@ type MediaItem = {
     createdAt: string;
 };
 
-type PageProps = {
-    params: Promise<{ id: string }>;
-};
+type PageProps = { params: Promise<{ id: string }> };
 
 export default function MediaGalleryPage({ params }: PageProps) {
     const router = useRouter();
@@ -28,7 +26,6 @@ export default function MediaGalleryPage({ params }: PageProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Form state
     const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
     const [type, setType] = useState<"IMAGE" | "VIDEO">("IMAGE");
     const [url, setUrl] = useState("");
@@ -41,31 +38,20 @@ export default function MediaGalleryPage({ params }: PageProps) {
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
     useEffect(() => {
-        params.then((p) => {
-            setInvitationId(p.id);
-            fetchMedia(p.id);
-        });
+        params.then((p) => { setInvitationId(p.id); fetchMedia(p.id); });
     }, [params]);
 
-    // Handle file selection
     function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
         const selectedFile = e.target.files?.[0];
         if (!selectedFile) return;
-
         setFile(selectedFile);
-
-        // Auto-detect type
         if (selectedFile.type.startsWith("image/")) {
             setType("IMAGE");
-            // Create preview
             const reader = new FileReader();
-            reader.onloadend = () => {
-                setFilePreview(reader.result as string);
-            };
+            reader.onloadend = () => setFilePreview(reader.result as string);
             reader.readAsDataURL(selectedFile);
         } else if (selectedFile.type.startsWith("video/")) {
-            setType("VIDEO");
-            setFilePreview(null);
+            setType("VIDEO"); setFilePreview(null);
         }
     }
 
@@ -75,363 +61,180 @@ export default function MediaGalleryPage({ params }: PageProps) {
             if (!res.ok) throw new Error("Failed to fetch media");
             const data = await res.json();
             setMediaItems(data);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        } catch (err: any) { setError(err.message); }
+        finally { setLoading(false); }
     }
 
     async function handleAddMedia(e: React.FormEvent) {
-        e.preventDefault();
-        setSubmitting(true);
-        setError(null);
-
+        e.preventDefault(); setSubmitting(true); setError(null);
         try {
             let finalUrl = url;
-
-            // If file mode, upload file first
             if (uploadMode === "file" && file) {
                 setUploading(true);
                 const formData = new FormData();
                 formData.append("file", file);
-
                 try {
-                    const uploadRes = await fetch("/api/upload", {
-                        method: "POST",
-                        body: formData,
-                    });
-
-                    if (!uploadRes.ok) {
-                        const errorData = await uploadRes.json();
-                        throw new Error(errorData.error || "Upload failed");
-                    }
-
+                    const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+                    if (!uploadRes.ok) throw new Error("Upload failed");
                     const uploadData = await uploadRes.json();
                     finalUrl = uploadData.data.url;
-                } catch (uploadErr: any) {
-                    console.error("Upload error:", uploadErr);
-
-                    // If it's a network error but file might be uploaded, 
-                    // let user know they can try URL mode with the uploaded file
-                    if (uploadErr.message?.includes("fetch") || uploadErr.name === "TypeError") {
-                        throw new Error(
-                            "Upload connection interrupted. File may have been uploaded to Supabase. " +
-                            "Please check Supabase Storage or try using URL mode instead."
-                        );
-                    }
-
-                    throw uploadErr;
-                } finally {
-                    setUploading(false);
-                }
+                } finally { setUploading(false); }
             }
+            if (!finalUrl) throw new Error("Tidak ada URL tersedia. Upload file atau masukkan URL.");
 
-            // Validate we have a URL
-            if (!finalUrl) {
-                throw new Error("No URL available. Please upload a file or enter a URL.");
-            }
-
-            // Add media to database
             const res = await fetch(`/api/invitations/${invitationId}/media`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type,
-                    url: finalUrl,
-                    caption: caption.trim() || undefined,
-                    order: mediaItems.length,
-                }),
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type, url: finalUrl, caption: caption.trim() || undefined, order: mediaItems.length }),
             });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to add media");
-            }
-
-            // Reset form
-            setUrl("");
-            setFile(null);
-            setFilePreview(null);
-            setCaption("");
-
-            // Refresh list
+            if (!res.ok) throw new Error("Failed to add media");
+            setUrl(""); setFile(null); setFilePreview(null); setCaption("");
             await fetchMedia(invitationId);
-
             toast.success("Media berhasil ditambahkan!");
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setSubmitting(false);
-            setUploading(false);
-        }
+        } catch (err: any) { setError(err.message); }
+        finally { setSubmitting(false); setUploading(false); }
     }
 
     async function handleDelete(mediaId: string) {
         setDeleteConfirm(null);
-
         try {
-            const res = await fetch(`/api/invitations/${invitationId}/media/${mediaId}`, {
-                method: "DELETE",
-            });
-
-            if (!res.ok) throw new Error("Failed to delete media");
-
-            // Refresh list
+            await fetch(`/api/invitations/${invitationId}/media/${mediaId}`, { method: "DELETE" });
             await fetchMedia(invitationId);
-
             toast.success("Media berhasil dihapus!");
-        } catch (err: any) {
-            setError(err.message);
-        }
+        } catch (err: any) { setError(err.message); }
     }
 
-    if (loading) {
-        return (
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    <p className="text-center">Loading...</p>
-                </div>
-            </div>
-        );
-    }
+    if (loading) return (
+        <div className="flex h-64 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--color-primary))] border-t-transparent"></div>
+        </div>
+    );
 
     return (
         <>
-            <ConfirmModal
-                isOpen={deleteConfirm !== null}
-                title="Hapus Media"
+            <ConfirmModal isOpen={deleteConfirm !== null} title="Hapus Media"
                 message="Yakin ingin menghapus media ini? Tindakan ini tidak dapat dibatalkan."
-                confirmText="Hapus"
-                cancelText="Batal"
+                confirmText="Hapus" cancelText="Batal"
                 onConfirm={() => deleteConfirm && handleDelete(deleteConfirm)}
-                onCancel={() => setDeleteConfirm(null)}
-                variant="danger"
-            />
+                onCancel={() => setDeleteConfirm(null)} variant="danger" />
             <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-            <div className="min-h-screen p-6">
-                <div className="mx-auto max-w-4xl">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link
-                            href={`/admin/invitations/${invitationId}`}
-                            className="text-sm text-neutral-400 hover:text-neutral-200"
-                        >
-                            ← Back to Invitation Details
-                        </Link>
-                        <h1 className="mt-2 text-2xl font-semibold text-white">Media Gallery</h1>
-                        <p className="text-sm text-neutral-400">Manage photos and videos</p>
+
+            <InvitationPageShell invitationId={invitationId} activePage="media"
+                title="Galeri Media" subtitle="Kelola foto dan video yang ditampilkan di undangan." error={error}>
+
+                {/* Add New Media Form */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Tambah Media Baru</h2>
+
+                    {/* Mode Toggle */}
+                    <div className="flex gap-2 mb-5 p-1 rounded-xl border border-current/10 bg-current/5 w-fit">
+                        <button type="button" onClick={() => setUploadMode("file")}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${uploadMode === "file"
+                                ? "bg-[rgb(var(--color-primary))] text-[#1a1a1a] shadow"
+                                : "opacity-50 hover:opacity-80"
+                            }`}>
+                            <Upload className="h-4 w-4" />
+                            Upload File
+                        </button>
+                        <button type="button" onClick={() => setUploadMode("url")}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${uploadMode === "url"
+                                ? "bg-[rgb(var(--color-primary))] text-[#1a1a1a] shadow"
+                                : "opacity-50 hover:opacity-80"
+                            }`}>
+                            <Link2 className="h-4 w-4" />
+                            Dari URL
+                        </button>
                     </div>
 
-                    {/* Navigation Tabs */}
-                    <AdminNavigationTabs invitationId={invitationId} activePage="media" />
-
-                    {error && (
-                        <div className="mb-4 rounded-lg border border-red-900 bg-red-950/50 p-4 text-sm text-red-400">
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Add New Media Form */}
-                    <div className="mb-8 rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">Add New Media</h2>
-
-                        {/* Mode Toggle */}
-                        <div className="mb-4 flex gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setUploadMode("file")}
-                                className={`rounded-lg px-4 py-2 text-sm font-medium ${uploadMode === "file"
-                                    ? "bg-emerald-600 text-white"
-                                    : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
-                                    }`}
-                            >
-                                Upload File
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setUploadMode("url")}
-                                className={`rounded-lg px-4 py-2 text-sm font-medium ${uploadMode === "url"
-                                    ? "bg-black text-white"
-                                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                                    }`}
-                            >
-                                Enter URL
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleAddMedia} className="space-y-4">
-                            {uploadMode === "file" ? (
-                                <>
-                                    {/* File Upload Mode */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-neutral-300">
-                                            Select File *
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept="image/*,video/*"
-                                            onChange={handleFileSelect}
-                                            required
-                                            className="mt-1 w-full rounded-lg border border-neutral-700 bg-neutral-800 px-3 py-2 text-white placeholder:text-neutral-500"
-                                        />
-                                        <p className="mt-1 text-xs text-neutral-500">
-                                            Max: 10MB for images, 30MB for videos
-                                        </p>
-                                    </div>
-
-                                    {/* File Preview */}
-                                    {filePreview && (
-                                        <div className="rounded-lg border border-neutral-200 p-2">
-                                            <img
-                                                src={filePreview}
-                                                alt="Preview"
-                                                className="h-32 w-full object-contain"
-                                            />
-                                        </div>
-                                    )}
-                                </>
-                            ) : (
-                                <>
-                                    {/* URL Mode */}
-                                    <div>
-                                        <label className="block text-sm font-medium text-neutral-700">
-                                            Type
-                                        </label>
-                                        <select
-                                            value={type}
-                                            onChange={(e) => setType(e.target.value as "IMAGE" | "VIDEO")}
-                                            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
-                                        >
-                                            <option value="IMAGE">Image</option>
-                                            <option value="VIDEO">Video</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-neutral-700">
-                                            URL *
-                                        </label>
-                                        <input
-                                            type="url"
-                                            value={url}
-                                            onChange={(e) => setUrl(e.target.value)}
-                                            required
-                                            className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
-                                            placeholder="https://example.com/photo.jpg"
-                                        />
-                                    </div>
-                                </>
-                            )}
-
+                    <form onSubmit={handleAddMedia} className="space-y-4">
+                        {uploadMode === "file" ? (
                             <div>
-                                <label className="block text-sm font-medium text-neutral-700">
-                                    Caption
-                                </label>
-                                <input
-                                    type="text"
-                                    value={caption}
-                                    onChange={(e) => setCaption(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
-                                    placeholder="Photo description..."
-                                    maxLength={200}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={submitting || uploading}
-                                className="rounded-lg bg-emerald-600 px-6 py-2 text-sm text-white hover:bg-emerald-500 disabled:opacity-50 cursor-pointer"
-                            >
-                                {uploading
-                                    ? "Uploading..."
-                                    : submitting
-                                        ? "Adding..."
-                                        : uploadMode === "file"
-                                            ? "Upload & Add Media"
-                                            : "+ Add Media"}
-                            </button>
-                        </form>
-                    </div>
-
-                    {/* Media List */}
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-                        <h2 className="mb-4 text-lg font-semibold text-white">
-                            Existing Media ({mediaItems.length} items)
-                        </h2>
-
-                        {mediaItems.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-neutral-400">
-                                No media items yet. Add your first photo or video above.
-                            </p>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                {mediaItems.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="overflow-hidden rounded-lg border border-neutral-200"
-                                    >
-                                        {/* Media Preview */}
-                                        <div className="aspect-video bg-neutral-100 flex items-center justify-center">
-                                            {item.type === "IMAGE" ? (
-                                                <img
-                                                    src={item.url}
-                                                    alt={item.caption || "Media"}
-                                                    className="h-full w-full object-cover"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23ddd' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999'%3EImage%3C/text%3E%3C/svg%3E";
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div className="text-center">
-                                                    <svg
-                                                        className="mx-auto h-12 w-12 text-neutral-400"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                                                        />
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                        />
-                                                    </svg>
-                                                    <p className="mt-2 text-xs text-neutral-500">VIDEO</p>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Media Info */}
-                                        <div className="p-3">
-                                            <p className="text-sm font-medium text-neutral-900">
-                                                {item.caption || "No caption"}
-                                            </p>
-                                            <p className="mt-1 text-xs text-neutral-500">
-                                                Order: {item.order}
-                                            </p>
-
-                                            <button
-                                                onClick={() => handleDelete(item.id)}
-                                                className="mt-3 w-full rounded-lg border border-red-300 bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500 cursor-pointer"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
+                                <label className="admin-label">Pilih File *</label>
+                                <input type="file" accept="image/*,video/*" onChange={handleFileSelect} required
+                                    className="admin-input cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-[rgb(var(--color-primary))]/20 file:text-[rgb(var(--color-primary))] file:text-xs file:font-semibold" />
+                                <p className="mt-1.5 text-xs opacity-40">Maks: 10MB untuk gambar, 30MB untuk video</p>
+                                {filePreview && (
+                                    <div className="mt-3 rounded-xl overflow-hidden border border-current/10 max-w-xs">
+                                        <img src={filePreview} alt="Preview" className="w-full h-40 object-cover" />
                                     </div>
-                                ))}
+                                )}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="admin-label">Tipe Media</label>
+                                    <select value={type} onChange={(e) => setType(e.target.value as "IMAGE" | "VIDEO")} className="admin-input">
+                                        <option value="IMAGE">Gambar</option>
+                                        <option value="VIDEO">Video</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="admin-label">URL *</label>
+                                    <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} required
+                                        className="admin-input" placeholder="https://example.com/photo.jpg" />
+                                </div>
                             </div>
                         )}
-                    </div>
+
+                        <div>
+                            <label className="admin-label">Caption (Opsional)</label>
+                            <input type="text" value={caption} onChange={(e) => setCaption(e.target.value)}
+                                className="admin-input" placeholder="Deskripsi foto..." maxLength={200} />
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button type="submit" disabled={submitting || uploading} className="admin-btn-primary">
+                                <Plus className="h-4 w-4" />
+                                {uploading ? "Mengupload..." : submitting ? "Menyimpan..." : uploadMode === "file" ? "Upload & Simpan" : "Tambah Media"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </div>
+
+                {/* Media Grid */}
+                <div className="admin-card">
+                    <h2 className="admin-section-title">Galeri ({mediaItems.length} item)</h2>
+                    {mediaItems.length === 0 ? (
+                        <div className="py-12 text-center opacity-50">
+                            <ImageIcon className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                            <p className="text-sm">Belum ada media. Tambahkan foto atau video di atas.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {mediaItems.map((item) => (
+                                <div key={item.id} className="group relative overflow-hidden rounded-xl border border-current/10 bg-current/5 hover:border-[rgb(var(--color-primary))]/30 transition-colors">
+                                    {/* Thumbnail */}
+                                    <div className="aspect-video bg-current/5 flex items-center justify-center overflow-hidden">
+                                        {item.type === "IMAGE" ? (
+                                            <img src={item.url} alt={item.caption || "Media"} className="h-full w-full object-cover"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.opacity = "0.3"; }} />
+                                        ) : (
+                                            <div className="text-center opacity-50">
+                                                <Film className="h-8 w-8 mx-auto mb-1" />
+                                                <p className="text-xs font-medium">VIDEO</p>
+                                            </div>
+                                        )}
+                                        {/* Type badge */}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-black/50 text-white backdrop-blur-sm">
+                                                {item.type === "IMAGE" ? "IMG" : "VID"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {/* Info */}
+                                    <div className="p-3">
+                                        <p className="text-xs font-medium truncate opacity-70">{item.caption || "—"}</p>
+                                        <button onClick={() => setDeleteConfirm(item.id)}
+                                            className="mt-2 w-full flex items-center justify-center gap-1.5 rounded-lg border border-red-500/30 py-1.5 text-xs text-red-500 hover:bg-red-500/10 transition-colors">
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                            Hapus
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </InvitationPageShell>
         </>
     );
 }
-
