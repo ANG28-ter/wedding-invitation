@@ -34,8 +34,14 @@ export const metadata: Metadata = {
   authors: [{ name: "AkaDev" }],
   creator: "AkaDev",
   icons: {
-    icon: "/logo/logo-akadev.png",
-    apple: "/logo/logo-akadev.png",
+    icon: [
+      { url: "/logo/logo-akadev.png" },
+      { url: "/logo/logo-akadev.png", sizes: "192x192", type: "image/png" },
+      { url: "/logo/logo-akadev.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo/logo-akadev.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "AkaDev Invitation — Undangan Digital Premium",
