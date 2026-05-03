@@ -4,32 +4,11 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { availableThemes } from "@/config/themes";
 
 export default function LandingThemes() {
-  const themes = [
-    {
-      id: "jawa-modern",
-      name: "Jawa Modern",
-      description: "Sentuhan tradisi klasik dengan gaya elegan masa kini.",
-      image: "https://images.unsplash.com/photo-1544078751-58fee2d8a03b?q=80&w=2070&auto=format&fit=crop", // Placeholder image link
-      link: "/aka-katarina", // Using existing page as demo
-      badge: "Best Seller",
-    },
-    {
-      id: "elegant-minimalist",
-      name: "Elegant Minimalist",
-      description: "Bersih, rapi, dan memfokuskan pada keindahan tipografi.",
-      image: "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop", // Placeholder
-      link: "#", // Placeholder link
-    },
-    {
-      id: "floral-romance",
-      name: "Floral Romance",
-      description: "Nuansa bunga-bunga lembut yang romantis dan menenangkan.",
-      image: "https://images.unsplash.com/photo-1505944357431-27579db47558?q=80&w=2073&auto=format&fit=crop", // Placeholder
-      link: "#", // Placeholder link
-    },
-  ];
+  // Hanya tampilkan maksimal 3 tema di beranda
+  const themes = availableThemes.slice(0, 3);
 
   return (
     <section id="themes" className="py-24 bg-linear-to-b from-[#20150f] to-[#1a110c] relative">
@@ -118,6 +97,21 @@ export default function LandingThemes() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-16 flex justify-center"
+        >
+          <Link
+            href="/tema"
+            className="px-8 py-3 rounded-full border border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))] hover:text-black transition-all font-sans text-sm tracking-widest uppercase group flex items-center gap-2"
+          >
+            Lihat Lebih Banyak
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

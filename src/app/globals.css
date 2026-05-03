@@ -35,7 +35,8 @@
 }
 
 /* Base Styles */
-html, body {
+html,
+body {
   background: #20150f;
   color: var(--foreground);
   font-family: var(--font-body);
@@ -850,8 +851,8 @@ html {
 /* Admin card / section card */
 .admin-card {
   border-radius: 1.25rem;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
   padding: 1.5rem;
   backdrop-filter: blur(8px);
   transition: border-color 0.2s;
@@ -863,8 +864,8 @@ html {
 
 /* Light-mode admin card */
 .light .admin-card {
-  border-color: rgba(0,0,0,0.07);
-  background: rgba(255,255,255,0.8);
+  border-color: rgba(0, 0, 0, 0.07);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .light .admin-card:hover {
@@ -896,8 +897,8 @@ html {
 .admin-input {
   width: 100%;
   border-radius: 0.75rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
   padding: 0.625rem 0.875rem;
   font-family: var(--font-sans);
   font-size: 0.875rem;
@@ -907,27 +908,27 @@ html {
 }
 
 .admin-input:focus {
-  border-color: rgba(212,175,55,0.5);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
 }
 
 .admin-input::placeholder {
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .light .admin-input {
-  background: rgba(255,255,255,0.9);
-  border-color: rgba(0,0,0,0.12);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.12);
   color: #1a1a1a;
 }
 
 .light .admin-input::placeholder {
-  color: rgba(0,0,0,0.3);
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .light .admin-input:focus {
-  border-color: rgba(212,175,55,0.6);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
 }
 
 /* Admin label */
@@ -956,12 +957,12 @@ html {
   font-size: 0.875rem;
   padding: 0.625rem 1.25rem;
   transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(212,175,55,0.25);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
 }
 
 .admin-btn-primary:hover {
   background: rgb(var(--color-secondary));
-  box-shadow: 0 6px 20px rgba(212,175,55,0.35);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
   transform: translateY(-1px);
 }
 
@@ -977,7 +978,7 @@ html {
   align-items: center;
   gap: 0.4rem;
   border-radius: 0.875rem;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: transparent;
   font-family: var(--font-sans);
   font-size: 0.875rem;
@@ -989,15 +990,15 @@ html {
 
 .admin-btn-ghost:hover {
   opacity: 1;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .light .admin-btn-ghost {
-  border-color: rgba(0,0,0,0.12);
+  border-color: rgba(0, 0, 0, 0.12);
 }
 
 .light .admin-btn-ghost:hover {
-  background: rgba(0,0,0,0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 /* Toggle URL/Upload buttons */
@@ -1017,23 +1018,23 @@ html {
 }
 
 .admin-toggle-btn-inactive {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .admin-toggle-btn-inactive:hover {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.8);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .light .admin-toggle-btn-inactive {
-  background: rgba(0,0,0,0.06);
-  color: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.06);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .light .admin-toggle-btn-inactive:hover {
-  background: rgba(0,0,0,0.1);
-  color: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 /* Scrollbar hide for tab rows */
@@ -1041,16 +1042,32 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
 /* Admin divider */
 .admin-divider {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin: 1.5rem 0;
 }
 
 .light .admin-divider {
-  border-top-color: rgba(0,0,0,0.07);
+  border-top-color: rgba(0, 0, 0, 0.07);
+}
+
+/* ===== Card Flip 3D Utilities ===== */
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

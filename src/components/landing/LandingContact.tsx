@@ -27,18 +27,18 @@ export default function LandingContact() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <a
-                href="#"
+                href="https://wa.me/6289615284595"
                 className="flex items-center gap-3 px-8 py-4 rounded-full gold-gradient text-black font-semibold font-sans text-sm tracking-widest uppercase hover:scale-105 transition-transform w-full sm:w-auto justify-center"
               >
                 <MessageCircle className="w-5 h-5" />
                 Hubungi via WhatsApp
               </a>
-              
+
               <div className="flex items-center gap-6 mt-6 sm:mt-0">
-                <a href="#" className="w-12 h-12 rounded-full glass flex items-center justify-center text-white/70 hover:text-[rgb(var(--color-primary))] hover:border-[rgb(var(--color-primary))]/50 transition-all">
+                <a href="https://wa.me/6289615284595" className="w-12 h-12 rounded-full glass flex items-center justify-center text-white/70 hover:text-[rgb(var(--color-primary))] hover:border-[rgb(var(--color-primary))]/50 transition-all">
                   <Phone className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-12 h-12 rounded-full glass flex items-center justify-center text-white/70 hover:text-[rgb(var(--color-primary))] hover:border-[rgb(var(--color-primary))]/50 transition-all">
+                <a href="mailto:invitationaka@gmail.com" className="w-12 h-12 rounded-full glass flex items-center justify-center text-white/70 hover:text-[rgb(var(--color-primary))] hover:border-[rgb(var(--color-primary))]/50 transition-all">
                   <Mail className="w-5 h-5" />
                 </a>
               </div>

@@ -51,11 +51,6 @@ export default function LandingFeatures() {
       description: "Dapatkan informasi aktivitas undangan (RSVP & ucapan) secara langsung.",
     },
     {
-      icon: <Globe className="w-8 h-8" />,
-      title: "Custom Domain",
-      description: "Gunakan nama domain Anda sendiri (contoh: romeojuliet.com) agar lebih eksklusif.",
-    },
-    {
       icon: <Clock className="w-8 h-8" />,
       title: "Custom Time Zone",
       description: "Informasi waktu yang otomatis menyesuaikan zona waktu tamu Anda.",

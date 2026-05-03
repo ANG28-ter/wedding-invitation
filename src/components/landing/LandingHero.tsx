@@ -67,7 +67,7 @@ export default function LandingHero() {
             Lihat Tema
           </Link>
           <Link
-            href="#contact"
+            href="https://wa.me/6289615284595"
             className="w-full sm:w-auto px-8 py-4 rounded-full glass text-white font-semibold font-sans text-sm tracking-widest uppercase hover:bg-white/10 transition-colors border border-[rgb(var(--color-primary))]/30"
           >
             Konsultasi Gratis
