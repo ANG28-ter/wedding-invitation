@@ -4,12 +4,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Filter, ChevronDown, LayoutGrid } from "lucide-react";
+import { Filter, ChevronDown, LayoutGrid, ShoppingBag } from "lucide-react";
 import { ThemeItem } from "@/config/themes";
+import OrderWizard from "@/components/theme/OrderWizard";
 
 export default function TemaClient({ initialData }: { initialData: ThemeItem[] }) {
   const [selectedPackage, setSelectedPackage] = useState<string>("All");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<ThemeItem | null>(null);
 
   const packages = ["All", "Basic", "Premium", "Exclusive"];
   const categories = [
@@ -30,6 +33,11 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
     return matchPackage && matchCategory;
   });
 
+  const handleSelectTheme = (theme: ThemeItem) => {
+    setSelectedTheme(theme);
+    setIsWizardOpen(true);
+  };
+
   return (
     <>
       {/* Package Tabs */}
@@ -38,11 +46,10 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
           <button
             key={pkg}
             onClick={() => setSelectedPackage(pkg)}
-            className={`px-6 py-3 rounded-full font-sans text-sm tracking-widest uppercase transition-all duration-300 ${
-              selectedPackage === pkg
+            className={`px-6 py-3 rounded-full font-sans text-sm tracking-widest uppercase transition-all duration-300 ${selectedPackage === pkg
                 ? "gold-gradient text-black font-semibold shadow-lg shadow-[rgb(var(--color-primary))]/20 scale-105"
                 : "bg-[#1a110c] text-white/70 border border-white/10 hover:border-[rgb(var(--color-primary))]/50 hover:text-white"
-            }`}
+              }`}
           >
             {pkg === "All" ? "Semua Paket" : pkg}
           </button>
@@ -62,11 +69,10 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-sans transition-colors border ${
-                  selectedCategory === cat
+                className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-sans transition-colors border ${selectedCategory === cat
                     ? "bg-[rgb(var(--color-primary))]/20 border-[rgb(var(--color-primary))] text-[rgb(var(--color-primary))]"
                     : "bg-[#2a1d15] border-white/10 text-white/70 hover:border-white/30"
-                }`}
+                  }`}
               >
                 {cat === "All" ? "Semua" : cat}
               </button>
@@ -81,7 +87,7 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
           <div className="col-span-full flex flex-col items-center justify-center py-20 text-white/50">
             <LayoutGrid className="w-16 h-16 mb-4 text-white/20" />
             <p className="font-body text-lg">Belum ada tema yang sesuai dengan filter Anda.</p>
-            <button 
+            <button
               onClick={() => { setSelectedPackage("All"); setSelectedCategory("All"); }}
               className="mt-6 px-6 py-2 rounded-full border border-[rgb(var(--color-primary))]/50 text-[rgb(var(--color-primary))] hover:bg-[rgb(var(--color-primary))]/10 transition-colors font-sans text-sm"
             >
@@ -111,7 +117,7 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                 />
-                
+
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 flex items-center justify-center">
                   <Link
@@ -122,7 +128,7 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
                   </Link>
                 </div>
               </div>
-              
+
               <div className="p-6 relative z-30 bg-[#20150f]/80 backdrop-blur-sm border-t border-white/5 grow flex flex-col justify-between">
                 <div>
                   <h3 className="text-2xl font-heading text-white mb-2">{theme.name}</h3>
@@ -137,12 +143,26 @@ export default function TemaClient({ initialData }: { initialData: ThemeItem[] }
                   <p className="text-white/60 font-body text-sm line-clamp-2 mt-2">
                     {theme.description}
                   </p>
+                  
+                  <button
+                    onClick={() => handleSelectTheme(theme)}
+                    className="mt-6 w-full py-4 rounded-xl gold-gradient text-black font-bold font-sans text-sm tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[rgb(var(--color-primary))]/10"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Pilih Tema
+                  </button>
                 </div>
               </div>
             </motion.div>
           ))
         )}
       </div>
+
+      <OrderWizard 
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        selectedTheme={selectedTheme}
+      />
     </>
   );
 }

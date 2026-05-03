@@ -43,7 +43,8 @@ export default function LandingPricing() {
   const plans = [
     {
       name: "Basic",
-      price: "45.000",
+      originalPrice: "79.000",
+      price: "40.000",
       description: "Paket esensial untuk undangan pernikahan digital yang elegan.",
       features: [
         "Nama Tamu Tidak Terbatas",
@@ -58,7 +59,8 @@ export default function LandingPricing() {
     },
     {
       name: "Premium",
-      price: "75.000",
+      originalPrice: "129.000",
+      price: "60.000",
       description: "Pilihan terfavorit dengan fitur lengkap dan interaktif.",
       features: [
         "Semua Fitur Basic",
@@ -76,7 +78,8 @@ export default function LandingPricing() {
     },
     {
       name: "Exclusive",
-      price: "100.000",
+      originalPrice: "169.000",
+      price: "90.000",
       description: "Kustomisasi penuh untuk pengalaman undangan tak terlupakan.",
       features: [
         "Semua Fitur Premium",
@@ -151,11 +154,10 @@ export default function LandingPricing() {
                 >
                   {/* ── FRONT SIDE ── */}
                   <div
-                    className={`absolute inset-0 rounded-3xl p-8 flex flex-col ${
-                      plan.isPopular
-                        ? "bg-linear-to-b from-[rgb(var(--color-primary))]/15 to-[#20150f]/50 border border-[rgb(var(--color-primary))] shadow-2xl shadow-[rgb(var(--color-primary))]/10"
-                        : "bg-[#1a110c]/80 border border-white/8 shadow-xl"
-                    }`}
+                    className={`absolute inset-0 rounded-3xl p-8 flex flex-col ${plan.isPopular
+                      ? "bg-linear-to-b from-[rgb(var(--color-primary))]/15 to-[#20150f]/50 border border-[rgb(var(--color-primary))] shadow-2xl shadow-[rgb(var(--color-primary))]/10"
+                      : "bg-[#1a110c]/80 border border-white/8 shadow-xl"
+                      }`}
                     style={{ backfaceVisibility: "hidden" }}
                   >
                     {/* Popular badge */}
@@ -168,6 +170,12 @@ export default function LandingPricing() {
                     {/* Header */}
                     <div className="text-center mb-7">
                       <p className="font-sans text-xs uppercase tracking-[0.3em] text-white/40 mb-2">{plan.name}</p>
+                      
+                      <div className="mb-1 flex items-center justify-center gap-2">
+                        <span className="text-white/30 font-sans text-sm line-through decoration-[rgb(var(--color-primary))]/40 italic">Rp {plan.originalPrice}</span>
+                        <span className="bg-[rgb(var(--color-primary))]/10 text-[rgb(var(--color-primary))] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Sale</span>
+                      </div>
+
                       <div className="flex items-baseline justify-center gap-1 mb-3">
                         <span className="text-white/60 font-sans text-base">Rp</span>
                         <span className="text-5xl font-heading gold-text font-bold leading-none">{plan.price}</span>
@@ -193,11 +201,10 @@ export default function LandingPricing() {
                     {/* CTA Button */}
                     <button
                       onClick={() => handleFlip(plan.name)}
-                      className={`w-full py-4 rounded-2xl font-sans text-sm tracking-widest uppercase font-semibold transition-all duration-300 ${
-                        plan.isPopular
-                          ? "gold-gradient text-black hover:scale-[1.03] hover:shadow-lg hover:shadow-[rgb(var(--color-primary))]/20"
-                          : "border border-white/15 text-white hover:border-white/40 hover:bg-white/5"
-                      }`}
+                      className={`w-full py-4 rounded-2xl font-sans text-sm tracking-widest uppercase font-semibold transition-all duration-300 ${plan.isPopular
+                        ? "gold-gradient text-black hover:scale-[1.03] hover:shadow-lg hover:shadow-[rgb(var(--color-primary))]/20"
+                        : "border border-white/15 text-white hover:border-white/40 hover:bg-white/5"
+                        }`}
                     >
                       Pilih Paket Ini
                     </button>
@@ -225,8 +232,11 @@ export default function LandingPricing() {
                     {/* Price reminder */}
                     <div className="bg-[rgb(var(--color-primary))]/8 border border-[rgb(var(--color-primary))]/20 rounded-2xl px-5 py-4 mb-6 flex items-center justify-between">
                       <div>
-                        <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Total Paket</p>
-                        <p className="font-heading text-2xl gold-text font-bold">Rp {plan.price}</p>
+                        <p className="font-sans text-[10px] uppercase tracking-widest text-white/40 mb-0.5">Total Harga Paket</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-heading text-2xl gold-text font-bold">Rp {plan.price}</p>
+                          <p className="text-white/20 text-xs line-through italic">Rp {plan.originalPrice}</p>
+                        </div>
                       </div>
                       <div className="w-8 h-8 rounded-full bg-[rgb(var(--color-primary))]/15 flex items-center justify-center">
                         <Sparkles className="w-4 h-4 text-[rgb(var(--color-primary))]" />
@@ -292,11 +302,10 @@ export default function LandingPricing() {
                       <button
                         onClick={() => handleSubmitWA(plan.name, false)}
                         disabled={!orderData.name}
-                        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-sans text-sm tracking-widest uppercase font-semibold transition-all ${
-                          orderData.name
-                            ? "gold-gradient text-black hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgb(var(--color-primary))]/20"
-                            : "bg-white/5 text-white/25 cursor-not-allowed border border-white/5"
-                        }`}
+                        className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-sans text-sm tracking-widest uppercase font-semibold transition-all ${orderData.name
+                          ? "gold-gradient text-black hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgb(var(--color-primary))]/20"
+                          : "bg-white/5 text-white/25 cursor-not-allowed border border-white/5"
+                          }`}
                       >
                         <MessageCircle className="w-4 h-4" /> Kirim ke WhatsApp
                       </button>

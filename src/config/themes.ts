@@ -7,8 +7,8 @@ export type ThemeItem = {
   image: string;
   link: string;
   badge?: string;
-  price: number; 
-  rating: number; 
+  price: number;
+  rating: number;
 };
 
 export const availableThemes: ThemeItem[] = [
