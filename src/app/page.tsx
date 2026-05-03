@@ -11,6 +11,8 @@ import LandingContact from "@/components/landing/LandingContact";
 import LandingFooter from "@/components/landing/LandingFooter";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Fetch real stats from database
   const invitationsCount = await prisma.invitation.count();

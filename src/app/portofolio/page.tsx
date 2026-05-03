@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   description: "Lihat koleksi undangan digital premium yang telah kami buat untuk berbagai pasangan bahagia.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function PortofolioPage() {
   const invitations = await prisma.invitation.findMany({
     orderBy: { createdAt: "desc" },
